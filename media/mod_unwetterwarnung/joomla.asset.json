@@ -1,0 +1,73 @@
+{
+    "$schema": "https://developer.joomla.org/schemas/json-schema/web_assets.json",
+    "name": "mod_unwetterwarnung",
+    "version": "1.0.0",
+    "description": "Weather Warning Module Assets",
+    "license": "GPL-2.0-or-later",
+    "assets": [
+        {
+            "name": "mod_unwetterwarnung.default",
+            "type": "style",
+            "uri": "mod_unwetterwarnung/css/mod_unwetterwarnung.css",
+            "dependencies": [],
+            "attributes": {
+                "media": "all"
+            }
+        },
+        {
+            "name": "mod_unwetterwarnung.default",
+            "type": "script",
+            "uri": "mod_unwetterwarnung/js/mod_unwetterwarnung.js",
+            "dependencies": [
+                "core"
+            ],
+            "attributes": {
+                "defer": true
+            }
+        },
+        {
+            "name": "mod_unwetterwarnung.carousel",
+            "type": "style",
+            "uri": "mod_unwetterwarnung/css/carousel.css",
+            "dependencies": [
+                "mod_unwetterwarnung.default"
+            ],
+            "attributes": {
+                "media": "all"
+            }
+        },
+        {
+            "name": "mod_unwetterwarnung.carousel",
+            "type": "script",
+            "uri": "mod_unwetterwarnung/js/carousel.js",
+            "dependencies": [
+                "mod_unwetterwarnung.default"
+            ],
+            "attributes": {
+                "defer": true
+            }
+        },
+        {
+            "name": "mod_unwetterwarnung.map",
+            "type": "style",
+            "uri": "mod_unwetterwarnung/css/map.css",
+            "dependencies": [
+                "mod_unwetterwarnung.default"
+            ],
+            "attributes": {
+                "media": "all"
+            }
+        },
+        {
+            "name": "mod_unwetterwarnung.map",
+            "type": "script",
+            "uri": "mod_unwetterwarnung/js/map-handler.js",
+            "dependencies": [
+                "mod_unwetterwarnung.default"
+            ],
+            "attributes": {
+                "defer": true
+            }
+        }
+    ]
+} 

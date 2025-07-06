@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" client="site" method="upgrade">
+    <name>mod_unwetterwarnung</name>
+    <author>Kiki Schuelling</author>
+    <creationDate>2025-07-07</creationDate>
+    <copyright>Ham wa nicht so'n Ranz</copyright>
+    <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+    <authorEmail>info@whykiki.de</authorEmail>
+    <authorUrl>https://whykiki.de</authorUrl>
+    <version>1.0.0</version>
+    <description>MOD_UNWETTERWARNUNG_XML_DESCRIPTION</description>
+
+    <namespace path="src">Whykiki\Module\Unwetterwarnung</namespace>
+
+    <files>
+        <folder>services</folder>
+        <folder>src</folder>
+        <folder>tmpl</folder>
+        <folder>language</folder>
+    </files>
+
+    <media destination="mod_unwetterwarnung" folder="media">
+        <filename>joomla.asset.json</filename>
+        <folder>css</folder>
+        <folder>js</folder>
+        <folder>images</folder>
+    </media>
+
+    <languages>
+        <language tag="en-GB">language/en-GB/mod_unwetterwarnung.ini</language>
+        <language tag="en-GB">language/en-GB/mod_unwetterwarnung.sys.ini</language>
+        <language tag="de-DE">language/de-DE/mod_unwetterwarnung.ini</language>
+        <language tag="de-DE">language/de-DE/mod_unwetterwarnung.sys.ini</language>
+    </languages>
+
+    <config>
+        <fields name="params">
+            <fieldset name="basic" label="MOD_UNWETTERWARNUNG_FIELDSET_BASIC">
+
+                <field
+                    name="api_key"
+                    type="password"
+                    label="MOD_UNWETTERWARNUNG_FIELD_API_KEY_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_API_KEY_DESC"
+                    required="true"
+                    size="40"
+                    filter="string"
+                />
+
+                <field
+                    name="location"
+                    type="text"
+                    label="MOD_UNWETTERWARNUNG_FIELD_LOCATION_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_LOCATION_DESC"
+                    required="true"
+                    size="40"
+                    filter="string"
+                    hint="Berlin, Germany"
+                />
+
+                <field
+                    name="layout"
+                    type="list"
+                    label="MOD_UNWETTERWARNUNG_FIELD_LAYOUT_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_LAYOUT_DESC"
+                    default="default"
+                >
+                    <option value="default">MOD_UNWETTERWARNUNG_LAYOUT_DEFAULT</option>
+                    <option value="carousel">MOD_UNWETTERWARNUNG_LAYOUT_CAROUSEL</option>
+                    <option value="map">MOD_UNWETTERWARNUNG_LAYOUT_MAP</option>
+                </field>
+
+                <field
+                    name="max_warnings"
+                    type="number"
+                    label="MOD_UNWETTERWARNUNG_FIELD_MAX_WARNINGS_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_MAX_WARNINGS_DESC"
+                    default="5"
+                    first="1"
+                    last="20"
+                    step="1"
+                />
+
+                <field
+                    name="cache_time"
+                    type="list"
+                    label="MOD_UNWETTERWARNUNG_FIELD_CACHE_TIME_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_CACHE_TIME_DESC"
+                    default="1800"
+                >
+                    <option value="300">MOD_UNWETTERWARNUNG_CACHE_5MIN</option>
+                    <option value="900">MOD_UNWETTERWARNUNG_CACHE_15MIN</option>
+                    <option value="1800">MOD_UNWETTERWARNUNG_CACHE_30MIN</option>
+                    <option value="3600">MOD_UNWETTERWARNUNG_CACHE_1HOUR</option>
+                </field>
+
+                <field
+                    name="show_severity"
+                    type="radio"
+                    label="MOD_UNWETTERWARNUNG_FIELD_SHOW_SEVERITY_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_SHOW_SEVERITY_DESC"
+                    default="1"
+                    class="btn-group btn-group-yesno"
+                >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+
+                <field
+                    name="auto_refresh"
+                    type="radio"
+                    label="MOD_UNWETTERWARNUNG_FIELD_AUTO_REFRESH_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_AUTO_REFRESH_DESC"
+                    default="0"
+                    class="btn-group btn-group-yesno"
+                >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+
+            </fieldset>
+
+            <fieldset name="advanced" label="MOD_UNWETTERWARNUNG_FIELDSET_ADVANCED">
+
+                <field
+                    name="language_override"
+                    type="list"
+                    label="MOD_UNWETTERWARNUNG_FIELD_LANGUAGE_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_LANGUAGE_DESC"
+                    default="auto"
+                >
+                    <option value="auto">MOD_UNWETTERWARNUNG_LANGUAGE_AUTO</option>
+                    <option value="en">English</option>
+                    <option value="de">Deutsch</option>
+                </field>
+
+                <field
+                    name="units"
+                    type="list"
+                    label="MOD_UNWETTERWARNUNG_FIELD_UNITS_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_UNITS_DESC"
+                    default="metric"
+                >
+                    <option value="metric">MOD_UNWETTERWARNUNG_UNITS_METRIC</option>
+                    <option value="imperial">MOD_UNWETTERWARNUNG_UNITS_IMPERIAL</option>
+                </field>
+
+                <field
+                    name="debug_mode"
+                    type="radio"
+                    label="MOD_UNWETTERWARNUNG_FIELD_DEBUG_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_DEBUG_DESC"
+                    default="0"
+                    class="btn-group btn-group-yesno"
+                >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+
+            </fieldset>
+
+        </fields>
+    </config>
+
+    <updateservers>
+        <server type="extension" priority="1" name="mod_unwetterwarnung">
+            https://whykiki.de/updates/mod_unwetterwarnung.xml
+        </server>
+    </updateservers>
+
+</extension>
