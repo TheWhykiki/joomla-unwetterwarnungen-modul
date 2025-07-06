@@ -153,6 +153,38 @@ class UnwetterwarnungHelper
     }
     
     /**
+     * Gets DWD Geoserver configuration for interactive map
+     *
+     * Prepares configuration settings for the DWD map template including
+     * coordinates, zoom level, height, and layer visibility options.
+     *
+     * @param   Registry  $params  Module parameters
+     *
+     * @return  array  Configuration array for DWD map
+     *
+     * @since   1.0.0
+     */
+    public function getDwdGeoserverConfig(Registry $params): array
+    {
+        return [
+            'center' => [
+                (float) $params->get('map_center_lat', 50.264024),
+                (float) $params->get('map_center_lon', 9.319105)
+            ],
+            'zoom' => (int) $params->get('map_zoom', 10),
+            'height' => (int) $params->get('map_height', 400),
+            'showGemeinden' => (bool) $params->get('show_gemeindegrenzen', 1),
+            'wmsUrl' => 'https://maps.dwd.de/geoserver/dwd/wms/',
+            'warnLayer' => 'Warnungen_Gemeinden_vereinigt',
+            'gemeindeLayer' => 'Warngebiete_Gemeinden',
+            'osmUrl' => 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            'osmAttribution' => 'Map data: &copy; <a href="https://openstreetmap.org" target="_blank">OpenStreetMap</a> contributors',
+            'dwdAttribution' => 'Warndaten: &copy; <a href="https://www.dwd.de" target="_blank">DWD</a>',
+            'maxZoom' => 18
+        ];
+    }
+    
+    /**
      * Validates and sanitizes location input
      *
      * Ensures the location string is safe for API requests and properly formatted.
