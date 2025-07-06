@@ -13,13 +13,13 @@
     <namespace path="src">Whykiki\Module\Unwetterwarnung</namespace>
 
     <files>
-        <folder>services</folder>
+        <folder module="mod_unwetterwarnung">services</folder>
         <folder>src</folder>
         <folder>tmpl</folder>
         <folder>language</folder>
     </files>
 
-    <media destination="mod_unwetterwarnung" folder="media">
+    <media folder="media" destination="mod_unwetterwarnung">
         <filename>joomla.asset.json</filename>
         <folder>css</folder>
         <folder>js</folder>
@@ -162,10 +162,11 @@
         </fields>
     </config>
 
-    <updateservers>
-        <server type="extension" priority="1" name="mod_unwetterwarnung">
-            https://whykiki.de/updates/mod_unwetterwarnung.xml
-        </server>
+    <!--
+         <updateservers>
+        <server type="extension" priority="1" name="Extension Update Site">http://example.com/extension.xml</server>
+        <server type="collection" priority="2" name="Collection Update Site">http://example.com/collection.xml</server>
     </updateservers>
+     -->
 
 </extension>
