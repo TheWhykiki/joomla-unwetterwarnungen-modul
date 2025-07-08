@@ -45,13 +45,7 @@ use Whykiki\Module\Unwetterwarnung\Site\Helper\OpenWeatherAPIHelper;
  */
 class UnwetterwarnungHelper
 {
-    /**
-     * Default cache time in seconds (30 minutes)
-     *
-     * @var    integer
-     * @since  1.0.0
-     */
-    private const DEFAULT_CACHE_TIME = 1800;
+
 
     /**
      * The application instance
@@ -75,8 +69,8 @@ class UnwetterwarnungHelper
      * Retrieves weather warnings for a specific location
      *
      * [CUSTOM FUNCTION] Main function for retrieving weather warnings.
-     * Manages caching, API calls and data processing with comprehensive
-     * error handling and parameter validation.
+     * Handles API calls and data processing with error handling.
+     * Caching is handled by ModuleHelper::moduleCache() in the Dispatcher.
      *
      * @param   Registry        $params  Module parameters
      * @param   SiteApplication $app     The application
@@ -111,17 +105,7 @@ class UnwetterwarnungHelper
             return [];
         }
 
-        // Get cache settings
-        $cacheTime = (int) $params->get('cache_time', self::DEFAULT_CACHE_TIME);
         $maxWarnings = (int) $params->get('max_warnings', 5);
-
-        // Try to get cached data first
-        $cacheKey = $this->generateCacheKey($location, $apiKey);
-        $cachedData = $this->getCachedAlerts($cacheKey, $cacheTime, $app);
-
-        if ($cachedData !== null) {
-            return $this->limitWarnings($cachedData, $maxWarnings);
-        }
 
         try {
             // Get OpenWeatherAPIHelper from container
@@ -143,9 +127,6 @@ class UnwetterwarnungHelper
             );
 
             $formattedData = $this->formatAlertData($apiData);
-
-            // Cache the results
-            $this->setCachedAlerts($cacheKey, $formattedData, $cacheTime, $app);
 
             return $this->limitWarnings($formattedData, $maxWarnings);
 
@@ -222,8 +203,9 @@ class UnwetterwarnungHelper
             return $location;
         }
 
-        // Sanitize city name
-        $location = filter_var($location, FILTER_SANITIZE_STRING);
+        // Sanitize city name using Joomla InputFilter (Joomla 5.x standard)
+        $inputFilter = new InputFilter();
+        $location = $inputFilter->clean($location, 'string');
 
         if (empty($location)) {
             throw new InvalidArgumentException('Invalid location format');
@@ -360,22 +342,17 @@ class UnwetterwarnungHelper
         }
 
         try {
-            $container = Factory::getContainer();
-            $cacheControllerFactory = $container->get(CacheControllerFactoryInterface::class);
-            $cacheController = $cacheControllerFactory->createCacheController('output', [
-                'defaultgroup' => 'mod_unwetterwarnung',
-                'lifetime' => $cacheTime,
-                'cachebase' => JPATH_CACHE
-            ]);
+            /** @var \Joomla\CMS\Cache\Controller\CallbackController $cache */
+            $cache = Factory::getContainer()->get(CacheControllerFactoryInterface::class)
+                ->createCacheController('callback', [
+                    'defaultgroup' => 'mod_unwetterwarnung', 
+                    'lifetime' => $cacheTime
+                ]);
 
-            $cachedData = $cacheController->get($cacheKey);
+            // Get cached data using standard Joomla pattern
+            $cachedData = $cache->get(md5($cacheKey));
 
-            if ($cachedData !== false && !empty($cachedData)) {
-                $decodedData = json_decode($cachedData, true);
-                if (json_last_error() === JSON_ERROR_NONE) {
-                    return $decodedData;
-                }
-            }
+            return $cachedData !== false ? $cachedData : null;
 
         } catch (\Exception $e) {
             Log::add(
@@ -412,18 +389,15 @@ class UnwetterwarnungHelper
         }
 
         try {
-            $container = Factory::getContainer();
-            $cacheControllerFactory = $container->get(CacheControllerFactoryInterface::class);
-            $cacheController = $cacheControllerFactory->createCacheController('output', [
-                'defaultgroup' => 'mod_unwetterwarnung',
-                'lifetime' => $cacheTime,
-                'cachebase' => JPATH_CACHE
-            ]);
+            /** @var \Joomla\CMS\Cache\Controller\CallbackController $cache */
+            $cache = Factory::getContainer()->get(CacheControllerFactoryInterface::class)
+                ->createCacheController('callback', [
+                    'defaultgroup' => 'mod_unwetterwarnung',
+                    'lifetime' => $cacheTime
+                ]);
 
-            $encodedData = json_encode($data);
-            if ($encodedData !== false) {
-                $cacheController->store($cacheKey, $encodedData);
-            }
+            // Store data using callback cache pattern
+            $cache->store($data, md5($cacheKey));
 
         } catch (\Exception $e) {
             Log::add(

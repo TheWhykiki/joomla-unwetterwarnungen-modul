@@ -29,14 +29,24 @@ $wa = $app->getDocument()->getWebAssetManager();
 
 /** @var \Joomla\Registry\Registry $params */
 /** @var array $warnings */
-/** @var string|null $error */
 /** @var bool $show_severity */
-/** @var bool $auto_refresh */
+
+// Initialize variables from params to fix undefined variable errors
+$auto_refresh = (bool) $params->get('auto_refresh', 0);
+$error = $error ?? null;  // Ensure $error is defined
 
 // Assets nur laden wenn Warnungen vorhanden sind oder Auto-Refresh aktiviert ist
 if (!empty($warnings) || $auto_refresh) {
-    $wa->useScript('mod_unwetterwarnung.default');
-    $wa->useStyle('mod_unwetterwarnung.default');
+    // Fallback: Direct asset loading without WebAsset Registry (for cache issues)
+    try {
+        $wa->useScript('mod_unwetterwarnung.default.script');
+        $wa->useStyle('mod_unwetterwarnung.default.style');
+    } catch (\Exception $e) {
+        // Fallback to direct HTML includes if WebAsset Registry fails
+        $doc = $app->getDocument();
+        $doc->addStyleSheet('media/mod_unwetterwarnung/css/mod_unwetterwarnung.css');
+        $doc->addScript('media/mod_unwetterwarnung/js/mod_unwetterwarnung.js', ['defer' => true]);
+    }
 }
 
 // CSS-Klassen für Module-Container
@@ -48,7 +58,7 @@ if ($auto_refresh) {
     $moduleClass .= ' auto-refresh';
 }
 
-?>aaaa
+?>
 <div class="<?php echo $moduleClass; ?>" id="mod-unwetterwarnung-<?php echo $module->id; ?>">
 
     <?php if ($error) : ?>
@@ -76,12 +86,12 @@ if ($auto_refresh) {
 
             <ul class="warnings-list list-unstyled" role="list">
                 <?php foreach ($warnings as $warning) : ?>
-                    <li class="warning-item warning-<?php echo htmlspecialchars($warning['severity'], ENT_QUOTES, 'UTF-8'); ?>"
-                        data-warning-id="<?php echo htmlspecialchars($warning['id'], ENT_QUOTES, 'UTF-8'); ?>"
+                    <li class="warning-item warning-<?php echo htmlspecialchars($warning['severity'] ?? 'info', ENT_QUOTES, 'UTF-8'); ?>"
+                        data-warning-id="<?php echo htmlspecialchars($warning['id'] ?? uniqid('warning_'), ENT_QUOTES, 'UTF-8'); ?>"
                         role="listitem">
 
                         <div class="warning-header">
-                            <?php if ($show_severity) : ?>
+                            <?php if ($show_severity && isset($warning['severity'])) : ?>
                                 <span class="warning-severity severity-<?php echo htmlspecialchars($warning['severity'], ENT_QUOTES, 'UTF-8'); ?>"
                                       aria-label="<?php echo Text::_('MOD_UNWETTERWARNUNG_SEVERITY_' . strtoupper($warning['severity'])); ?>">
                                     <?php echo Text::_('MOD_UNWETTERWARNUNG_SEVERITY_' . strtoupper($warning['severity'])); ?>
@@ -89,7 +99,7 @@ if ($auto_refresh) {
                             <?php endif; ?>
 
                             <h4 class="warning-title">
-                                <?php echo htmlspecialchars($warning['title'], ENT_QUOTES, 'UTF-8'); ?>
+                                <?php echo htmlspecialchars($warning['event'] ?? Text::_('MOD_UNWETTERWARNUNG_UNKNOWN_EVENT'), ENT_QUOTES, 'UTF-8'); ?>
                             </h4>
                         </div>
 
@@ -112,7 +122,7 @@ if ($auto_refresh) {
                                 </span>
                             <?php endif; ?>
 
-                            <?php if (!empty($warning['start'])) : ?>
+                            <?php if (isset($warning['start']) && !empty($warning['start'])) : ?>
                                 <span class="warning-time">
                                     <span class="icon-clock" aria-hidden="true"></span>
                                     <time datetime="<?php echo date('c', $warning['start']); ?>">
@@ -121,7 +131,7 @@ if ($auto_refresh) {
                                 </span>
                             <?php endif; ?>
 
-                            <?php if (!empty($warning['end'])) : ?>
+                            <?php if (isset($warning['end']) && !empty($warning['end'])) : ?>
                                 <span class="warning-end">
                                     <span class="icon-clock-o" aria-hidden="true"></span>
                                     <time datetime="<?php echo date('c', $warning['end']); ?>">

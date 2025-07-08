@@ -6,7 +6,7 @@
     "license": "GPL-2.0-or-later",
     "assets": [
         {
-            "name": "mod_unwetterwarnung.default",
+            "name": "mod_unwetterwarnung.default.style",
             "type": "style",
             "uri": "mod_unwetterwarnung/css/mod_unwetterwarnung.css",
             "dependencies": [],
@@ -15,7 +15,7 @@
             }
         },
         {
-            "name": "mod_unwetterwarnung.default",
+            "name": "mod_unwetterwarnung.default.script",
             "type": "script",
             "uri": "mod_unwetterwarnung/js/mod_unwetterwarnung.js",
             "dependencies": [
@@ -26,44 +26,101 @@
             }
         },
         {
-            "name": "mod_unwetterwarnung.carousel",
+            "name": "mod_unwetterwarnung.carousel.style",
             "type": "style",
             "uri": "mod_unwetterwarnung/css/carousel.css",
             "dependencies": [
-                "mod_unwetterwarnung.default"
+                "mod_unwetterwarnung.default.style"
             ],
             "attributes": {
                 "media": "all"
             }
         },
         {
-            "name": "mod_unwetterwarnung.carousel",
+            "name": "mod_unwetterwarnung.carousel.script",
             "type": "script",
             "uri": "mod_unwetterwarnung/js/carousel.js",
             "dependencies": [
-                "mod_unwetterwarnung.default"
+                "mod_unwetterwarnung.default.script"
             ],
             "attributes": {
                 "defer": true
             }
         },
         {
-            "name": "mod_unwetterwarnung.map",
+            "name": "mod_unwetterwarnung.map.style",
             "type": "style",
             "uri": "mod_unwetterwarnung/css/map.css",
             "dependencies": [
-                "mod_unwetterwarnung.default"
+                "mod_unwetterwarnung.default.style"
             ],
             "attributes": {
                 "media": "all"
             }
         },
         {
-            "name": "mod_unwetterwarnung.map",
+            "name": "mod_unwetterwarnung.map.script",
             "type": "script",
             "uri": "mod_unwetterwarnung/js/map-handler.js",
             "dependencies": [
-                "mod_unwetterwarnung.default"
+                "mod_unwetterwarnung.default.script"
+            ],
+            "attributes": {
+                "defer": true
+            }
+        },
+        {
+            "name": "mod_unwetterwarnung.leaflet.style",
+            "type": "style",
+            "uri": "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css",
+            "dependencies": [],
+            "attributes": {
+                "media": "all",
+                "crossorigin": "anonymous"
+            }
+        },
+        {
+            "name": "mod_unwetterwarnung.leaflet.script",
+            "type": "script",
+            "uri": "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js",
+            "dependencies": [],
+            "attributes": {
+                "defer": true,
+                "crossorigin": "anonymous"
+            }
+        },
+        {
+            "name": "mod_unwetterwarnung.betterwms.script",
+            "type": "script",
+            "uri": "mod_unwetterwarnung/js/leaflet-betterwms.js",
+            "dependencies": [
+                "mod_unwetterwarnung.leaflet.script"
+            ],
+            "attributes": {
+                "defer": true
+            }
+        },
+        {
+            "name": "mod_unwetterwarnung.dwd-map.style",
+            "type": "style",
+            "uri": "mod_unwetterwarnung/css/dwd-map.css",
+            "dependencies": [
+                "mod_unwetterwarnung.default.style",
+                "mod_unwetterwarnung.leaflet.style"
+            ],
+            "attributes": {
+                "media": "all"
+            }
+        },
+        {
+            "name": "mod_unwetterwarnung.dwd-map.script",
+            "type": "script",
+            "uri": "mod_unwetterwarnung/js/dwd-map.js",
+            "dependencies": [
+                "mod_unwetterwarnung.default.script",
+                "mod_unwetterwarnung.leaflet.script",
+                "mod_unwetterwarnung.betterwms.script",
+                "core"
             ],
             "attributes": {
                 "defer": true
