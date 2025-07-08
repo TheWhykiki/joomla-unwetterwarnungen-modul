@@ -445,9 +445,6 @@ modules/mod_unwetterwarnung/
 │   ├── carousel.php                     # Carousel-Layout
 │   └── map.php                          # Karten-Layout
 ├── language/                            # Sprachdateien
-├── tests/playwright/                    # E2E-Tests
-├── docs/                               # Dokumentation
-├── tasks/                              # Aufgaben-Tracking
 └── README.md                           # Diese Datei
 
 media/mod_unwetterwarnung/
@@ -456,7 +453,6 @@ media/mod_unwetterwarnung/
 ├── js/
 │   ├── mod_unwetterwarnung.js          # Hauptfunktionalität
 │   └── map-handler.js                  # Karten-Handler
-└── images/weather-icons/               # Wetter-Icons
 ```
 
 ### API-Integration
@@ -466,16 +462,6 @@ Das Modul nutzt folgende OpenWeatherMap APIs:
 - **One Call API 3.0**: Für Wetterwarnungen
 - **Geocoding API**: Für Standort-Auflösung
 - **Current Weather API**: Für aktuelle Wetterdaten
-
-### Testing
-
-```bash
-# Playwright-Tests ausführen
-npx playwright test modules/mod_unwetterwarnung/tests/playwright/
-
-# Spezifische Tests
-npx playwright test basic.spec.js --project=chromium
-```
 
 ## 🌍 Mehrsprachigkeit
 
@@ -553,59 +539,5 @@ $params->set('debug', true);
 - XSS-Schutz durch HTML-Escaping
 - CSRF-Token für Admin-Formulare
 
-## 📄 Lizenz
-
-**GNU General Public License v2.0**
-
-Dieses Modul ist freie Software unter der GPL v2.0 Lizenz.
-
-## 👥 Support
-
-### Community-Support
-
-- **GitHub Issues**: [Repository Issues](https://github.com/whykiki/mod_unwetterwarnung/issues)
-- **Joomla Forum**: Modul-Entwicklung Bereich
-- **Discord**: Joomla Deutschland Server
-
-### Kommerzielle Unterstützung
-
-Für professionelle Unterstützung, Anpassungen oder Schulungen kontaktiere:
-
-**Whykiki Development**
-- Website: [whykiki.de](https://whykiki.de)
-- E-Mail: support@whykiki.de
-
-## 🚀 Roadmap
-
-### Version 1.1 (Q2 2024)
-- [ ] Multi-Location Support
-- [ ] Push-Benachrichtigungen
-- [ ] Advanced Filtering
-- [ ] Custom Alert Types
-
-### Version 1.2 (Q3 2024)
-- [ ] Weather Radar Integration
-- [ ] Historical Data View
-- [ ] Mobile App Integration
-- [ ] Advanced Analytics
-
-## 🤝 Beitragen
-
-Beiträge sind willkommen! Bitte beachte:
-
-1. **Fork** das Repository
-2. **Erstelle** einen Feature-Branch
-3. **Committe** deine Änderungen
-4. **Teste** gründlich
-5. **Erstelle** einen Pull Request
-
-### Entwicklungsrichtlinien
-
-- PSR-12 Coding Standards
-- Joomla 5.x Best Practices
-- 100% Test-Coverage für neue Features
-- Dokumentation für alle öffentlichen APIs
-
----
 
 **Made with ❤️ for the Joomla Community** 
