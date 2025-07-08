@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  *    __          __ _    _ __     __ _  __ _____  _  __ _____
  *     \ \        / /| |  | |\ \   / /| |/ /|_   _|| |/ /|_   _|
@@ -34,35 +32,25 @@ use Joomla\DI\ServiceProviderInterface;
  * dependency injection container. This includes the dispatcher factory, helper
  * factory, and module services following Joomla 5.x+ patterns.
  *
+ * @see https://github.com/whykiki/mod_unwetterwarnung#service-provider
  * @since  1.0.0
  */
 return new class () implements ServiceProviderInterface {
-    /**
-     * Registers the service provider with a DI container
-     *
-     * Sets up the dependency injection for the weather warning module.
-     * Registers dispatcher factory, helper factory, and module service provider
-     * to enable proper instantiation and dependency resolution.
-     *
-     * @param   Container  $container  The DI container to register services in
-     *
-     * @return  void
-     *
-     * @since   1.0.0
-     */
+	/**
+	 * Registers the service provider with a DI container.
+	 *
+	 * @param   Container  $container  The DI container.
+	 *
+	 * @return  void
+	 *
+	 * @since   5.1.0
+	 */
     public function register(Container $container): void
     {
-        // Register the module dispatcher factory
-        $container->registerServiceProvider(
-            new ModuleDispatcherFactory('\\Joomla\\Module\\Unwetterwarnung')
-        );
-        
-        // Register the helper factory for the module
-        $container->registerServiceProvider(
-            new HelperFactory('\\Joomla\\Module\\Unwetterwarnung\\Site\\Helper')
-        );
-        
-        // Register the module service provider
-        $container->registerServiceProvider(new Module());
+	    $container->registerServiceProvider(new ModuleDispatcherFactory('\\Whykiki\\Module\\Unwetterwarnung'));
+	    $container->registerServiceProvider(new HelperFactory('\\Whykiki\\Module\\Unwetterwarnung\\Site\\Helper'));
+
+	    $container->registerServiceProvider(new Module());
+
     }
-}; 
+};

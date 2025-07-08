@@ -28,8 +28,10 @@ use Joomla\CMS\Uri\Uri;
  * Location Field with autocomplete functionality
  * 
  * Provides a text input field with geocoding autocomplete suggestions
- * for location selection in the module configuration.
+ * for location selection in the module configuration. Extends Joomla's
+ * TextField with custom JavaScript for enhanced user experience.
  *
+ * @see https://github.com/whykiki/mod_unwetterwarnung#location-field
  * @since 1.0.0
  */
 class LocationField extends TextField
@@ -42,9 +44,16 @@ class LocationField extends TextField
     protected $type = 'Location';
 
     /**
-     * Method to get the field input markup.
+     * Method to get the field input markup
      *
-     * @return string The field input markup.
+     * [JOOMLA STANDARD] Creates HTML input for location selection.
+     * Extends TextField to generate enhanced input field with autocomplete
+     * functionality, coordinate display, and suggestion container.
+     *
+     * @return string The field input markup
+     *
+     * @see https://github.com/whykiki/mod_unwetterwarnung#location-field-input
+     * @since 1.0.0
      */
     protected function getInput(): string
     {
@@ -108,9 +117,16 @@ class LocationField extends TextField
     }
     
     /**
-     * Method to get the field label markup.
+     * Method to get the field label markup
      *
-     * @return string The field label markup.
+     * [JOOMLA STANDARD] Creates HTML label with help texts.
+     * Extends standard label functionality to include contextual
+     * help text for better user guidance.
+     *
+     * @return string The field label markup
+     *
+     * @see https://github.com/whykiki/mod_unwetterwarnung#location-field-label
+     * @since 1.0.0
      */
     protected function getLabel(): string
     {
@@ -128,9 +144,16 @@ class LocationField extends TextField
     /**
      * Get coordinate value from stored data
      * 
+     * [CUSTOM FUNCTION] Retrieves stored coordinate values.
+     * Extracts latitude or longitude values from the form data
+     * for pre-filling coordinate fields in the input.
+     * 
      * @param string $type Either 'lat' or 'lon'
      * 
      * @return string Coordinate value
+     * 
+     * @see https://github.com/whykiki/mod_unwetterwarnung#get-coordinate
+     * @since 1.0.0
      */
     private function getCoordinate(string $type): string
     {
@@ -146,6 +169,15 @@ class LocationField extends TextField
     
     /**
      * Add JavaScript for location field functionality
+     *
+     * [CUSTOM FUNCTION] Injects CSS and JavaScript for autocomplete.
+     * Adds custom styling and JavaScript functionality for the location
+     * field including autocomplete suggestions and coordinate handling.
+     *
+     * @return void
+     *
+     * @see https://github.com/whykiki/mod_unwetterwarnung#location-field-script
+     * @since 1.0.0
      */
     private function addLocationFieldScript(): void
     {

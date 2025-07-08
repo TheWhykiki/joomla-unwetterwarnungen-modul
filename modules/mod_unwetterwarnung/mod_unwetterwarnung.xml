@@ -38,27 +38,6 @@
             <fieldset name="basic" label="MOD_UNWETTERWARNUNG_FIELDSET_BASIC">
 
                 <field
-                    name="api_key"
-                    type="password"
-                    label="MOD_UNWETTERWARNUNG_FIELD_API_KEY_LABEL"
-                    description="MOD_UNWETTERWARNUNG_FIELD_API_KEY_DESC"
-                    required="true"
-                    size="40"
-                    filter="string"
-                />
-
-                <field
-                    name="location"
-                    type="text"
-                    label="MOD_UNWETTERWARNUNG_FIELD_LOCATION_LABEL"
-                    description="MOD_UNWETTERWARNUNG_FIELD_LOCATION_DESC"
-                    required="true"
-                    size="40"
-                    filter="string"
-                    hint="Berlin, Germany"
-                />
-
-                <field
                     name="layout"
                     type="list"
                     label="MOD_UNWETTERWARNUNG_FIELD_LAYOUT_LABEL"
@@ -83,19 +62,6 @@
                 />
 
                 <field
-                    name="cache_time"
-                    type="list"
-                    label="MOD_UNWETTERWARNUNG_FIELD_CACHE_TIME_LABEL"
-                    description="MOD_UNWETTERWARNUNG_FIELD_CACHE_TIME_DESC"
-                    default="1800"
-                >
-                    <option value="300">MOD_UNWETTERWARNUNG_CACHE_5MIN</option>
-                    <option value="900">MOD_UNWETTERWARNUNG_CACHE_15MIN</option>
-                    <option value="1800">MOD_UNWETTERWARNUNG_CACHE_30MIN</option>
-                    <option value="3600">MOD_UNWETTERWARNUNG_CACHE_1HOUR</option>
-                </field>
-
-                <field
                     name="show_severity"
                     type="radio"
                     label="MOD_UNWETTERWARNUNG_FIELD_SHOW_SEVERITY_LABEL"
@@ -117,6 +83,54 @@
                 >
                     <option value="1">JYES</option>
                     <option value="0">JNO</option>
+                </field>
+
+            </fieldset>
+
+            <fieldset name="openweather" label="MOD_UNWETTERWARNUNG_FIELDSET_OPENWEATHER">
+
+                <field
+                    name="api_key"
+                    type="password"
+                    label="MOD_UNWETTERWARNUNG_FIELD_API_KEY_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_API_KEY_DESC"
+                    required="true"
+                    size="40"
+                    filter="string"
+                />
+
+                <field
+                    name="location"
+                    type="text"
+                    label="MOD_UNWETTERWARNUNG_FIELD_LOCATION_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_LOCATION_DESC"
+                    required="true"
+                    size="40"
+                    filter="string"
+                    hint="Berlin, Germany"
+                />
+
+                <field
+                    name="language_override"
+                    type="list"
+                    label="MOD_UNWETTERWARNUNG_FIELD_LANGUAGE_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_LANGUAGE_DESC"
+                    default="auto"
+                >
+                    <option value="auto">MOD_UNWETTERWARNUNG_LANGUAGE_AUTO</option>
+                    <option value="en">English</option>
+                    <option value="de">Deutsch</option>
+                </field>
+
+                <field
+                    name="units"
+                    type="list"
+                    label="MOD_UNWETTERWARNUNG_FIELD_UNITS_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_UNITS_DESC"
+                    default="metric"
+                >
+                    <option value="metric">MOD_UNWETTERWARNUNG_UNITS_METRIC</option>
+                    <option value="imperial">MOD_UNWETTERWARNUNG_UNITS_IMPERIAL</option>
                 </field>
 
             </fieldset>
@@ -180,32 +194,125 @@
                     hint="400"
                 />
 
+                <field
+                    name="dwd_wms_url"
+                    type="text"
+                    label="MOD_UNWETTERWARNUNG_FIELD_DWD_WMS_URL_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_DWD_WMS_URL_DESC"
+                    default="https://maps.dwd.de/geoserver/dwd/wms/"
+                    size="60"
+                    filter="string"
+                    hint="https://maps.dwd.de/geoserver/dwd/wms/"
+                />
+
+                <field
+                    name="dwd_warn_layer"
+                    type="text"
+                    label="MOD_UNWETTERWARNUNG_FIELD_DWD_WARN_LAYER_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_DWD_WARN_LAYER_DESC"
+                    default="Warnungen_Gemeinden_vereinigt"
+                    size="40"
+                    filter="string"
+                    hint="Warnungen_Gemeinden_vereinigt"
+                />
+
+                <field
+                    name="dwd_gemeinde_layer"
+                    type="text"
+                    label="MOD_UNWETTERWARNUNG_FIELD_DWD_GEMEINDE_LAYER_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_DWD_GEMEINDE_LAYER_DESC"
+                    default="Warngebiete_Gemeinden"
+                    size="40"
+                    filter="string"
+                    hint="Warngebiete_Gemeinden"
+                />
+
+                <field
+                    name="osm_tile_url"
+                    type="text"
+                    label="MOD_UNWETTERWARNUNG_FIELD_OSM_TILE_URL_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_OSM_TILE_URL_DESC"
+                    default="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    size="60"
+                    filter="string"
+                    hint="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+
+                <field
+                    name="osm_attribution"
+                    type="text"
+                    label="MOD_UNWETTERWARNUNG_FIELD_OSM_ATTRIBUTION_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_OSM_ATTRIBUTION_DESC"
+                    default="Map data: &amp;copy; &lt;a href=&quot;https://openstreetmap.org&quot; target=&quot;_blank&quot;&gt;OpenStreetMap&lt;/a&gt; contributors"
+                    size="80"
+                    filter="string"
+                />
+
+                <field
+                    name="dwd_attribution"
+                    type="text"
+                    label="MOD_UNWETTERWARNUNG_FIELD_DWD_ATTRIBUTION_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_DWD_ATTRIBUTION_DESC"
+                    default="Warndaten: &amp;copy; &lt;a href=&quot;https://www.dwd.de&quot; target=&quot;_blank&quot;&gt;DWD&lt;/a&gt;"
+                    size="80"
+                    filter="string"
+                />
+
+                <field
+                    name="map_max_zoom"
+                    type="list"
+                    label="MOD_UNWETTERWARNUNG_FIELD_MAP_MAX_ZOOM_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_MAP_MAX_ZOOM_DESC"
+                    default="18"
+                >
+                    <option value="15">15</option>
+                    <option value="16">16</option>
+                    <option value="17">17</option>
+                    <option value="18">18</option>
+                    <option value="19">19</option>
+                    <option value="20">20</option>
+                </field>
+
             </fieldset>
 
-            <fieldset name="advanced" label="MOD_UNWETTERWARNUNG_FIELDSET_ADVANCED">
+            <fieldset name="advanced">
 
                 <field
-                    name="language_override"
+                    name="layout"
+                    type="modulelayout"
+                    label="JFIELD_ALT_LAYOUT_LABEL"
+                    class="form-select"
+                    validate="moduleLayout"
+                />
+
+                <field
+                    name="moduleclass_sfx"
+                    type="textarea"
+                    label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+                    rows="3"
+                    validate="CssIdentifier"
+                />
+
+                <field
+                    name="owncache"
                     type="list"
-                    label="MOD_UNWETTERWARNUNG_FIELD_LANGUAGE_LABEL"
-                    description="MOD_UNWETTERWARNUNG_FIELD_LANGUAGE_DESC"
-                    default="auto"
+                    label="COM_MODULES_FIELD_CACHING_LABEL"
+                    default="1"
+                    filter="integer"
+                    validate="options"
                 >
-                    <option value="auto">MOD_UNWETTERWARNUNG_LANGUAGE_AUTO</option>
-                    <option value="en">English</option>
-                    <option value="de">Deutsch</option>
+                    <option value="1">JGLOBAL_USE_GLOBAL</option>
+                    <option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
                 </field>
 
                 <field
-                    name="units"
-                    type="list"
-                    label="MOD_UNWETTERWARNUNG_FIELD_UNITS_LABEL"
-                    description="MOD_UNWETTERWARNUNG_FIELD_UNITS_DESC"
-                    default="metric"
-                >
-                    <option value="metric">MOD_UNWETTERWARNUNG_UNITS_METRIC</option>
-                    <option value="imperial">MOD_UNWETTERWARNUNG_UNITS_IMPERIAL</option>
-                </field>
+                    name="cache_time"
+                    type="number"
+                    label="COM_MODULES_FIELD_CACHE_TIME_LABEL"
+                    description="MOD_UNWETTERWARNUNG_FIELD_CACHE_TIME_DESC"
+                    default="1800"
+                    filter="integer"
+                />
 
                 <field
                     name="debug_mode"

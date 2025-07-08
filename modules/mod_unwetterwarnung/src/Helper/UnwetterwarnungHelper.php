@@ -25,15 +25,13 @@ namespace Whykiki\Module\Unwetterwarnung\Site\Helper;
 
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Cache\CacheControllerFactoryInterface;
-use Joomla\CMS\Cache\Controller\CallbackController;
-use Joomla\CMS\Http\HttpFactory;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Log\Log;
-use Joomla\CMS\Uri\Uri;
+use Joomla\Filter\InputFilter;
 use Joomla\Registry\Registry;
-use Joomla\Utilities\ArrayHelper;
-use RuntimeException;
 use InvalidArgumentException;
+use Whykiki\Module\Unwetterwarnung\Site\Helper\OpenWeatherAPIHelper;
 
 /**
  * Helper class for Weather Warning module
@@ -42,18 +40,11 @@ use InvalidArgumentException;
  * Handles caching, error states, and data transformation for the module display.
  * Implements proper error handling and follows Joomla 5.x+ patterns.
  *
+ * @see https://github.com/whykiki/mod_unwetterwarnung#unwetterwarnunghelper
  * @since  1.0.0
  */
 class UnwetterwarnungHelper
 {
-    /**
-     * OpenWeather API base URL
-     *
-     * @var    string
-     * @since  1.0.0
-     */
-    private const API_BASE_URL = 'https://api.openweathermap.org/data/3.0/onecall';
-    
     /**
      * Default cache time in seconds (30 minutes)
      *
@@ -61,100 +52,118 @@ class UnwetterwarnungHelper
      * @since  1.0.0
      */
     private const DEFAULT_CACHE_TIME = 1800;
-    
+
     /**
-     * The application object
-     *
-     * Used to access application-wide settings and services like input handling,
-     * session management, and configuration values.
+     * The application instance
      *
      * @var    SiteApplication
      * @since  1.0.0
      */
     private SiteApplication $app;
-    
-    /**
-     * Cache controller factory
-     *
-     * Used to create cache controllers for storing and retrieving
-     * weather data to reduce API calls and improve performance.
-     *
-     * @var    CacheControllerFactoryInterface
-     * @since  1.0.0
-     */
-    private CacheControllerFactoryInterface $cacheFactory;
-    
+
     /**
      * Constructor
      *
-     * Initializes the helper with required dependencies.
-     * All dependencies are injected rather than retrieved from factories
-     * following Joomla 5.x+ dependency injection patterns.
-     *
-     * @param   SiteApplication                    $app           The application object
-     * @param   CacheControllerFactoryInterface    $cacheFactory  The cache factory
-     *
      * @since   1.0.0
      */
-    public function __construct(
-        SiteApplication $app,
-        CacheControllerFactoryInterface $cacheFactory
-    ) {
-        $this->app = $app;
-        $this->cacheFactory = $cacheFactory;
+    public function __construct()
+    {
+        // No dependencies needed - SiteApplication is passed via method parameters
     }
-    
+
     /**
      * Retrieves weather warnings for a specific location
      *
-     * Fetches current weather alerts from the OpenWeather API.
-     * Results are cached to reduce API calls and improve performance.
-     * Handles both city names and coordinate-based locations.
+     * [CUSTOM FUNCTION] Main function for retrieving weather warnings.
+     * Manages caching, API calls and data processing with comprehensive
+     * error handling and parameter validation.
      *
-     * @param   string  $location  The location to check (city name or coordinates)
-     * @param   array   $params    Module parameters including API key and cache settings
+     * @param   Registry        $params  Module parameters
+     * @param   SiteApplication $app     The application
      *
-     * @return  array  Array of weather warnings with severity, title, and description
+     * @return  array  Array of weather warnings
      *
+     * @see https://github.com/whykiki/mod_unwetterwarnung#getwarnings
      * @since   1.0.0
-     * @throws  RuntimeException  When API key is missing or API request fails
      */
-    public function getWarnings(string $location, array $params): array
+    public function getWarnings(Registry $params, SiteApplication $app): array
     {
         // Validate required parameters
-        $apiKey = ArrayHelper::getValue($params, 'api_key', '');
+        $apiKey = $params->get('api_key', '');
         if (empty($apiKey)) {
-            throw new RuntimeException('API key is required');
+            return [];
         }
-        
+
+        $location = $params->get('location', '');
+        if (empty($location)) {
+            return [];
+        }
+
         // Validate and sanitize location
-        $location = $this->validateLocation($location);
-        
+        try {
+            $location = $this->validateLocation($location);
+        } catch (InvalidArgumentException $e) {
+            Log::add(
+                'Invalid location format: ' . $e->getMessage(),
+                Log::WARNING,
+                'mod_unwetterwarnung'
+            );
+            return [];
+        }
+
         // Get cache settings
-        $cacheTime = (int) ArrayHelper::getValue($params, 'cache_time', self::DEFAULT_CACHE_TIME);
-        $maxWarnings = (int) ArrayHelper::getValue($params, 'max_warnings', 5);
-        
+        $cacheTime = (int) $params->get('cache_time', self::DEFAULT_CACHE_TIME);
+        $maxWarnings = (int) $params->get('max_warnings', 5);
+
         // Try to get cached data first
         $cacheKey = $this->generateCacheKey($location, $apiKey);
-        $cachedData = $this->getCachedAlerts($cacheKey, $cacheTime);
-        
+        $cachedData = $this->getCachedAlerts($cacheKey, $cacheTime, $app);
+
         if ($cachedData !== null) {
             return $this->limitWarnings($cachedData, $maxWarnings);
         }
-        
-        // Fetch fresh data from API
-        $apiData = $this->fetchFromApi($location, $apiKey, $params);
-        $formattedData = $this->formatAlertData($apiData);
-        
-        // Cache the results
-        $this->setCachedAlerts($cacheKey, $formattedData, $cacheTime);
-        
-        return $this->limitWarnings($formattedData, $maxWarnings);
+
+        try {
+            // Get OpenWeatherAPIHelper from container
+            $apiClient = Factory::getContainer()->get(OpenWeatherAPIHelper::class);
+
+            // Get coordinates for location if needed
+            $coordinates = $this->getCoordinates($location, $params, $app, $apiClient);
+
+            // Fetch weather alerts
+            $lang = $app->getLanguage()->getTag();
+            $lang = substr($lang, 0, 2); // Get language code (de, en, etc.)
+
+            $apiData = $apiClient->getWeatherAlerts(
+                $params,
+                $app,
+                $coordinates['lat'],
+                $coordinates['lon'],
+                $lang
+            );
+
+            $formattedData = $this->formatAlertData($apiData);
+
+            // Cache the results
+            $this->setCachedAlerts($cacheKey, $formattedData, $cacheTime, $app);
+
+            return $this->limitWarnings($formattedData, $maxWarnings);
+
+        } catch (\Exception $e) {
+            Log::add(
+                'Weather Warning Module Error: ' . $e->getMessage(),
+                Log::ERROR,
+                'mod_unwetterwarnung'
+            );
+
+            return [];
+        }
     }
-    
+
     /**
      * Gets DWD Geoserver configuration for interactive map
      *
+     * [CUSTOM FUNCTION] Creates configuration for DWD weather maps.
      * Prepares configuration settings for the DWD map template including
      * coordinates, zoom level, height, and layer visibility options.
      *
@@ -162,6 +171,7 @@ class UnwetterwarnungHelper
      *
      * @return  array  Configuration array for DWD map
      *
+     * @see https://github.com/whykiki/mod_unwetterwarnung#dwd-config
      * @since   1.0.0
      */
     public function getDwdGeoserverConfig(Registry $params): array
@@ -183,10 +193,11 @@ class UnwetterwarnungHelper
             'maxZoom' => 18
         ];
     }
-    
+
     /**
      * Validates and sanitizes location input
      *
+     * [CUSTOM FUNCTION] Ensures location string is safe for API requests.
      * Ensures the location string is safe for API requests and properly formatted.
      * Supports city names, postal codes, and coordinates (lat,lon).
      *
@@ -194,319 +205,297 @@ class UnwetterwarnungHelper
      *
      * @return  string  Sanitized location string ready for API use
      *
+     * @see https://github.com/whykiki/mod_unwetterwarnung#validate-location
      * @since   1.0.0
      * @throws  InvalidArgumentException  When location format is invalid
      */
     protected function validateLocation(string $location): string
     {
         $location = trim($location);
-        
+
         if (empty($location)) {
             throw new InvalidArgumentException('Location cannot be empty');
         }
-        
+
         // Check if it's coordinates (lat,lon format)
         if (preg_match('/^-?\d+\.?\d*,-?\d+\.?\d*$/', $location)) {
             return $location;
         }
-        
+
         // Sanitize city name
         $location = filter_var($location, FILTER_SANITIZE_STRING);
-        
+
         if (empty($location)) {
             throw new InvalidArgumentException('Invalid location format');
         }
-        
+
         return $location;
     }
-    
+
     /**
-     * Fetches weather data from the OpenWeather API
+     * Formats API alert data into module display format
      *
-     * Makes HTTP request to the OpenWeather API and handles potential errors.
-     * Converts location to coordinates if necessary and includes proper error handling.
+     * [CUSTOM FUNCTION] Transforms raw API data into standardized format.
+     * Converts raw API response into standardized alert format with severity mapping,
+     * time formatting, and description processing for template rendering.
      *
-     * @param   string  $location  The location to fetch data for
-     * @param   string  $apiKey    The OpenWeather API key
-     * @param   array   $params    Additional parameters for the API request
+     * @param   array  $rawData  Raw alert data from the API
      *
-     * @return  array  Raw API response data
+     * @return  array  Formatted alerts ready for display
      *
-     * @since   1.0.0
-     * @throws  RuntimeException  When API request fails
-     */
-    protected function fetchFromApi(string $location, string $apiKey, array $params): array
-    {
-        // Get coordinates for the location if needed
-        $coordinates = $this->getCoordinates($location, $apiKey);
-        
-        // Build API URL
-        $url = $this->buildApiUrl($coordinates, $apiKey, $params);
-        
-        // Make HTTP request
-        $http = HttpFactory::getHttp();
-        
-        try {
-            $response = $http->get($url);
-            
-            if ($response->code !== 200) {
-                throw new RuntimeException('API request failed with status: ' . $response->code);
-            }
-            
-            $data = json_decode($response->body, true);
-            
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RuntimeException('Invalid JSON response from API');
-            }
-            
-            return $data;
-            
-        } catch (\Exception $e) {
-            Log::add(
-                'OpenWeather API Error: ' . $e->getMessage(),
-                Log::ERROR,
-                'mod_unwetterwarnung'
-            );
-            
-            throw new RuntimeException('Failed to fetch weather data: ' . $e->getMessage());
-        }
-    }
-    
-    /**
-     * Formats raw API data into standardized warning structure
-     *
-     * Converts OpenWeather API response into a consistent format for display.
-     * Handles missing fields and provides fallback values.
-     *
-     * @param   array  $rawData  Raw API response data
-     *
-     * @return  array  Formatted array of weather warnings
-     *
+     * @see https://github.com/whykiki/mod_unwetterwarnung#format-alert-data
      * @since   1.0.0
      */
     protected function formatAlertData(array $rawData): array
     {
-        $warnings = [];
-        
-        // Check if alerts exist in the response
-        if (!isset($rawData['alerts']) || !is_array($rawData['alerts'])) {
-            return $warnings;
+        if (empty($rawData)) {
+            return [];
         }
-        
-        foreach ($rawData['alerts'] as $alert) {
-            $warnings[] = [
-                'id' => $alert['id'] ?? uniqid(),
-                'title' => $alert['event'] ?? Text::_('MOD_UNWETTERWARNUNG_UNKNOWN_EVENT'),
+
+        $formattedAlerts = [];
+
+        foreach ($rawData as $alert) {
+            $formattedAlerts[] = [
+                'id' => md5($alert['event'] . $alert['start'] . $alert['description']),
+                'event' => $alert['event'] ?? Text::_('MOD_UNWETTERWARNUNG_UNKNOWN_EVENT'),
                 'description' => $alert['description'] ?? '',
-                'severity' => $this->mapSeverity($alert['severity'] ?? 'unknown'),
-                'start' => $alert['start'] ?? time(),
-                'end' => $alert['end'] ?? null,
-                'sender' => $alert['sender_name'] ?? Text::_('MOD_UNWETTERWARNUNG_UNKNOWN_SENDER'),
+                'severity' => $this->mapSeverity($alert['severity'] ?? 'minor'),
+                'urgency' => $alert['urgency'] ?? 'unknown',
+                'certainty' => $alert['certainty'] ?? 'unknown',
+                'start' => $this->formatTimestamp($alert['start'] ?? time()),
+                'end' => $this->formatTimestamp($alert['end'] ?? time()),
                 'tags' => $alert['tags'] ?? [],
+                'sender' => $alert['sender_name'] ?? Text::_('MOD_UNWETTERWARNUNG_UNKNOWN_SENDER')
             ];
         }
-        
-        return $warnings;
+
+        return $formattedAlerts;
     }
-    
+
     /**
-     * Maps API severity levels to standardized values
+     * Maps API severity levels to module severity levels
      *
-     * Converts OpenWeather severity strings to consistent severity levels
-     * for styling and display purposes.
+     * [CUSTOM FUNCTION] Converts API severity to CSS-compatible classes.
+     * Maps OpenWeatherMap severity levels to Bootstrap-compatible
+     * CSS classes for consistent UI representation.
      *
      * @param   string  $apiSeverity  Severity from API response
      *
-     * @return  string  Standardized severity level
+     * @return  string  Mapped severity level for CSS classes
      *
+     * @see https://github.com/whykiki/mod_unwetterwarnung#map-severity
      * @since   1.0.0
      */
     protected function mapSeverity(string $apiSeverity): string
     {
         $severityMap = [
-            'minor' => 'low',
-            'moderate' => 'medium',
-            'severe' => 'high',
-            'extreme' => 'critical',
+            'extreme' => 'danger',
+            'severe' => 'warning',
+            'moderate' => 'info',
+            'minor' => 'success'
         ];
-        
-        return $severityMap[$apiSeverity] ?? 'unknown';
+
+        return $severityMap[$apiSeverity] ?? 'info';
     }
-    
+
     /**
-     * Generates cache key for location and API key combination
+     * Formats a Unix timestamp for display
      *
-     * Creates a unique cache key based on location and API key
-     * to ensure proper cache isolation between different configurations.
+     * [CUSTOM FUNCTION] Converts Unix timestamp to readable German format.
+     * Formats timestamps using German date/time format (d.m.Y H:i)
+     * for consistent display across the module.
+     *
+     * @param   int  $timestamp  Unix timestamp
+     *
+     * @return  string  Formatted date/time string
+     *
+     * @see https://github.com/whykiki/mod_unwetterwarnung#format-timestamp
+     * @since   1.0.0
+     */
+    protected function formatTimestamp(int $timestamp): string
+    {
+        return date('d.m.Y H:i', $timestamp);
+    }
+
+    /**
+     * Generates a cache key for the given location and API key
+     *
+     * [CUSTOM FUNCTION] Creates secure cache key for request isolation.
+     * Creates a unique, secure cache key based on location and API key
+     * for proper cache isolation between different configurations.
      *
      * @param   string  $location  The location string
      * @param   string  $apiKey    The API key
      *
-     * @return  string  Cache key
+     * @return  string  Cache key for the request
      *
+     * @see https://github.com/whykiki/mod_unwetterwarnung#generate-cache-key
      * @since   1.0.0
      */
     protected function generateCacheKey(string $location, string $apiKey): string
     {
         return 'mod_unwetterwarnung_' . md5($location . $apiKey);
     }
-    
+
     /**
-     * Retrieves cached weather alerts
+     * Retrieves cached alert data if available and not expired
      *
-     * Attempts to retrieve cached weather data for the given cache key.
-     * Returns null if cache is expired or doesn't exist.
+     * [CUSTOM FUNCTION] Fetches cached data using Joomla's cache system.
+     * Checks the Joomla cache system for existing alert data and returns it
+     * if found and still valid according to the cache time setting.
      *
-     * @param   string   $cacheKey   The cache key to retrieve
-     * @param   integer  $cacheTime  Cache lifetime in seconds
+     * @param   string           $cacheKey   The cache key to check
+     * @param   int              $cacheTime  Cache validity time in seconds
+     * @param   SiteApplication  $app        The application instance
      *
      * @return  array|null  Cached data or null if not found/expired
      *
+     * @see https://github.com/whykiki/mod_unwetterwarnung#get-cached-alerts
      * @since   1.0.0
      */
-    protected function getCachedAlerts(string $cacheKey, int $cacheTime): ?array
+    protected function getCachedAlerts(string $cacheKey, int $cacheTime, SiteApplication $app): ?array
     {
+        if ($cacheTime <= 0) {
+            return null;
+        }
+
         try {
-            /** @var CallbackController $cache */
-            $cache = $this->cacheFactory->createCacheController('callback', [
+            $container = Factory::getContainer();
+            $cacheControllerFactory = $container->get(CacheControllerFactoryInterface::class);
+            $cacheController = $cacheControllerFactory->createCacheController('output', [
                 'defaultgroup' => 'mod_unwetterwarnung',
-                'cachebase' => $this->app->get('cache_path', JPATH_CACHE),
                 'lifetime' => $cacheTime,
+                'cachebase' => JPATH_CACHE
             ]);
-            
-            $data = $cache->get($cacheKey);
-            
-            return is_array($data) ? $data : null;
-            
+
+            $cachedData = $cacheController->get($cacheKey);
+
+            if ($cachedData !== false && !empty($cachedData)) {
+                $decodedData = json_decode($cachedData, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    return $decodedData;
+                }
+            }
+
         } catch (\Exception $e) {
             Log::add(
-                'Cache retrieval error: ' . $e->getMessage(),
+                'Cache retrieval failed: ' . $e->getMessage(),
                 Log::WARNING,
                 'mod_unwetterwarnung'
             );
-            
-            return null;
         }
+
+        return null;
     }
-    
+
     /**
-     * Stores weather alerts in cache
+     * Stores alert data in the cache system
      *
-     * Saves formatted weather data to cache for future requests.
-     * Handles cache errors gracefully without affecting main functionality.
+     * [CUSTOM FUNCTION] Saves data to Joomla's cache system.
+     * Saves the formatted alert data to the Joomla cache system for
+     * the specified cache time to reduce API calls.
      *
-     * @param   string   $cacheKey   The cache key to store under
-     * @param   array    $data       The data to cache
-     * @param   integer  $cacheTime  Cache lifetime in seconds
+     * @param   string           $cacheKey   The cache key to store under
+     * @param   array            $data       The data to cache
+     * @param   int              $cacheTime  Cache validity time in seconds
+     * @param   SiteApplication  $app        The application instance
      *
      * @return  void
      *
+     * @see https://github.com/whykiki/mod_unwetterwarnung#set-cached-alerts
      * @since   1.0.0
      */
-    protected function setCachedAlerts(string $cacheKey, array $data, int $cacheTime): void
+    protected function setCachedAlerts(string $cacheKey, array $data, int $cacheTime, SiteApplication $app): void
     {
+        if ($cacheTime <= 0) {
+            return;
+        }
+
         try {
-            /** @var CallbackController $cache */
-            $cache = $this->cacheFactory->createCacheController('callback', [
+            $container = Factory::getContainer();
+            $cacheControllerFactory = $container->get(CacheControllerFactoryInterface::class);
+            $cacheController = $cacheControllerFactory->createCacheController('output', [
                 'defaultgroup' => 'mod_unwetterwarnung',
-                'cachebase' => $this->app->get('cache_path', JPATH_CACHE),
                 'lifetime' => $cacheTime,
+                'cachebase' => JPATH_CACHE
             ]);
-            
-            $cache->store($data, $cacheKey);
-            
+
+            $encodedData = json_encode($data);
+            if ($encodedData !== false) {
+                $cacheController->store($cacheKey, $encodedData);
+            }
+
         } catch (\Exception $e) {
             Log::add(
-                'Cache storage error: ' . $e->getMessage(),
+                'Cache storage failed: ' . $e->getMessage(),
                 Log::WARNING,
                 'mod_unwetterwarnung'
             );
         }
     }
-    
+
     /**
-     * Limits the number of warnings returned
+     * Limits the number of warnings to display
      *
-     * Restricts the warning array to the specified maximum number
-     * while preserving the most severe warnings first.
+     * [CUSTOM FUNCTION] Truncates warning array to prevent UI overload.
+     * Truncates the warnings array to the maximum number specified
+     * in the module configuration to prevent overwhelming displays.
      *
-     * @param   array    $warnings     Array of weather warnings
-     * @param   integer  $maxWarnings  Maximum number of warnings to return
+     * @param   array  $warnings     Array of formatted warnings
+     * @param   int    $maxWarnings  Maximum number of warnings to return
      *
-     * @return  array  Limited array of warnings
+     * @return  array  Limited warnings array
      *
+     * @see https://github.com/whykiki/mod_unwetterwarnung#limit-warnings
      * @since   1.0.0
      */
     protected function limitWarnings(array $warnings, int $maxWarnings): array
     {
-        if (count($warnings) <= $maxWarnings) {
+        if ($maxWarnings <= 0 || count($warnings) <= $maxWarnings) {
             return $warnings;
         }
-        
-        // Sort by severity (most severe first)
-        usort($warnings, function ($a, $b) {
-            $severityOrder = ['critical' => 4, 'high' => 3, 'medium' => 2, 'low' => 1, 'unknown' => 0];
-            return ($severityOrder[$b['severity']] ?? 0) - ($severityOrder[$a['severity']] ?? 0);
-        });
-        
+
         return array_slice($warnings, 0, $maxWarnings);
     }
-    
+
     /**
-     * Gets coordinates for a location
+     * Gets coordinates for a location using the OpenWeatherAPIHelper
      *
-     * Placeholder method for coordinate resolution.
-     * In a full implementation, this would handle geocoding.
+     * [CUSTOM FUNCTION] Converts location string to GPS coordinates.
+     * Handles both coordinate strings and location names using geocoding.
+     * Supports direct lat,lon input or uses OpenWeatherMap's geocoding API.
      *
-     * @param   string  $location  Location string
-     * @param   string  $apiKey    API key for geocoding
+     * @param   string                $location   Location string (city name or lat,lon)
+     * @param   Registry              $params     Module parameters
+     * @param   SiteApplication       $app        The application
+     * @param   OpenWeatherAPIHelper  $apiClient  The API client helper
      *
-     * @return  array  Coordinates array with lat and lon
+     * @return  array  Array with 'lat' and 'lon' keys
      *
+     * @see https://github.com/whykiki/mod_unwetterwarnung#get-coordinates
      * @since   1.0.0
+     * @throws  \Exception  When coordinates cannot be determined
      */
-    protected function getCoordinates(string $location, string $apiKey): array
+    protected function getCoordinates(string $location, Registry $params, SiteApplication $app, OpenWeatherAPIHelper $apiClient): array
     {
-        // TODO: Implement geocoding for city names
-        // For now, assume coordinates are provided directly
+        // Check if location is already in lat,lon format
         if (preg_match('/^(-?\d+\.?\d*),(-?\d+\.?\d*)$/', $location, $matches)) {
             return [
                 'lat' => (float) $matches[1],
-                'lon' => (float) $matches[2],
+                'lon' => (float) $matches[2]
             ];
         }
-        
-        // Fallback coordinates (Berlin)
+
+        // Use geocoding to get coordinates
+        $geocodeResults = $apiClient->geocodeLocation($params, $app, $location, 1);
+
+        if (empty($geocodeResults)) {
+            throw new \Exception('Location not found: ' . $location);
+        }
+
         return [
-            'lat' => 52.5200,
-            'lon' => 13.4050,
+            'lat' => (float) $geocodeResults[0]['lat'],
+            'lon' => (float) $geocodeResults[0]['lon']
         ];
     }
-    
-    /**
-     * Builds the complete API URL
-     *
-     * Constructs the OpenWeather API URL with all necessary parameters.
-     *
-     * @param   array   $coordinates  Latitude and longitude
-     * @param   string  $apiKey       API key
-     * @param   array   $params       Additional parameters
-     *
-     * @return  string  Complete API URL
-     *
-     * @since   1.0.0
-     */
-    protected function buildApiUrl(array $coordinates, string $apiKey, array $params): string
-    {
-        $queryParams = [
-            'lat' => $coordinates['lat'],
-            'lon' => $coordinates['lon'],
-            'appid' => $apiKey,
-            'exclude' => 'minutely,hourly,daily',
-            'lang' => ArrayHelper::getValue($params, 'language_override', 'en'),
-            'units' => ArrayHelper::getValue($params, 'units', 'metric'),
-        ];
-        
-        return self::API_BASE_URL . '?' . http_build_query($queryParams);
-    }
-} 
+}

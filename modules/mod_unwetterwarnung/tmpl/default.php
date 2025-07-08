@@ -1,8 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-/**
+    /**
  *    __          __ _    _ __     __ _  __ _____  _  __ _____
  *     \ \        / /| |  | |\ \   / /| |/ /|_   _|| |/ /|_   _|
  *      \ \  /\  / / | |__| | \ \_/ / | ' /   | |  | ' /   | |
@@ -50,14 +48,14 @@ if ($auto_refresh) {
     $moduleClass .= ' auto-refresh';
 }
 
-?>
+?>aaaa
 <div class="<?php echo $moduleClass; ?>" id="mod-unwetterwarnung-<?php echo $module->id; ?>">
-    
+
     <?php if ($error) : ?>
         <div class="alert alert-danger" role="alert">
             <span class="icon-exclamation-triangle" aria-hidden="true"></span>
             <span class="visually-hidden"><?php echo Text::_('ERROR'); ?></span>
-            <?php echo $this->escape($error); ?>
+            <?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?>
         </div>
     <?php elseif (empty($warnings)) : ?>
         <div class="alert alert-success" role="alert">
@@ -66,7 +64,7 @@ if ($auto_refresh) {
             <?php echo Text::_('MOD_UNWETTERWARNUNG_NO_WARNINGS'); ?>
         </div>
     <?php else : ?>
-        
+
         <div class="warnings-container">
             <div class="warnings-header">
                 <h3 class="warnings-title">
@@ -75,45 +73,45 @@ if ($auto_refresh) {
                     <span class="badge badge-warning"><?php echo count($warnings); ?></span>
                 </h3>
             </div>
-            
+
             <ul class="warnings-list list-unstyled" role="list">
                 <?php foreach ($warnings as $warning) : ?>
-                    <li class="warning-item warning-<?php echo $this->escape($warning['severity']); ?>" 
-                        data-warning-id="<?php echo $this->escape($warning['id']); ?>"
+                    <li class="warning-item warning-<?php echo htmlspecialchars($warning['severity'], ENT_QUOTES, 'UTF-8'); ?>"
+                        data-warning-id="<?php echo htmlspecialchars($warning['id'], ENT_QUOTES, 'UTF-8'); ?>"
                         role="listitem">
-                        
+
                         <div class="warning-header">
                             <?php if ($show_severity) : ?>
-                                <span class="warning-severity severity-<?php echo $this->escape($warning['severity']); ?>"
+                                <span class="warning-severity severity-<?php echo htmlspecialchars($warning['severity'], ENT_QUOTES, 'UTF-8'); ?>"
                                       aria-label="<?php echo Text::_('MOD_UNWETTERWARNUNG_SEVERITY_' . strtoupper($warning['severity'])); ?>">
                                     <?php echo Text::_('MOD_UNWETTERWARNUNG_SEVERITY_' . strtoupper($warning['severity'])); ?>
                                 </span>
                             <?php endif; ?>
-                            
+
                             <h4 class="warning-title">
-                                <?php echo $this->escape($warning['title']); ?>
+                                <?php echo htmlspecialchars($warning['title'], ENT_QUOTES, 'UTF-8'); ?>
                             </h4>
                         </div>
-                        
+
                         <?php if (!empty($warning['description'])) : ?>
                             <div class="warning-description">
-                                <?php echo HTMLHelper::_('string.truncate', 
-                                    $this->escape($warning['description']), 
-                                    200, 
-                                    true, 
+                                <?php echo HTMLHelper::_('string.truncate',
+                                    htmlspecialchars($warning['description'], ENT_QUOTES, 'UTF-8'),
+                                    200,
+                                    true,
                                     false
                                 ); ?>
                             </div>
                         <?php endif; ?>
-                        
+
                         <div class="warning-meta">
                             <?php if (!empty($warning['sender'])) : ?>
                                 <span class="warning-sender">
                                     <span class="icon-user" aria-hidden="true"></span>
-                                    <?php echo $this->escape($warning['sender']); ?>
+                                    <?php echo htmlspecialchars($warning['sender'], ENT_QUOTES, 'UTF-8'); ?>
                                 </span>
                             <?php endif; ?>
-                            
+
                             <?php if (!empty($warning['start'])) : ?>
                                 <span class="warning-time">
                                     <span class="icon-clock" aria-hidden="true"></span>
@@ -122,7 +120,7 @@ if ($auto_refresh) {
                                     </time>
                                 </span>
                             <?php endif; ?>
-                            
+
                             <?php if (!empty($warning['end'])) : ?>
                                 <span class="warning-end">
                                     <span class="icon-clock-o" aria-hidden="true"></span>
@@ -132,27 +130,27 @@ if ($auto_refresh) {
                                 </span>
                             <?php endif; ?>
                         </div>
-                        
+
                         <?php if (!empty($warning['tags'])) : ?>
                             <div class="warning-tags">
                                 <?php foreach ($warning['tags'] as $tag) : ?>
                                     <span class="badge badge-secondary warning-tag">
-                                        <?php echo $this->escape($tag); ?>
+                                        <?php echo htmlspecialchars($tag, ENT_QUOTES, 'UTF-8'); ?>
                                     </span>
                                 <?php endforeach; ?>
                             </div>
                         <?php endif; ?>
-                        
+
                     </li>
                 <?php endforeach; ?>
             </ul>
-            
+
             <div class="warnings-footer">
                 <small class="text-muted">
                     <span class="icon-info-circle" aria-hidden="true"></span>
                     <?php echo Text::_('MOD_UNWETTERWARNUNG_POWERED_BY'); ?>
                 </small>
-                
+
                 <?php if ($auto_refresh) : ?>
                     <small class="text-muted auto-refresh-info">
                         <span class="icon-refresh" aria-hidden="true"></span>
@@ -161,9 +159,9 @@ if ($auto_refresh) {
                 <?php endif; ?>
             </div>
         </div>
-        
+
     <?php endif; ?>
-    
+
 </div>
 
 <?php if ($auto_refresh) : ?>
@@ -171,11 +169,11 @@ if ($auto_refresh) {
         document.addEventListener('DOMContentLoaded', function() {
             const moduleId = 'mod-unwetterwarnung-<?php echo $module->id; ?>';
             const refreshInterval = <?php echo (int) $params->get('cache_time', 1800) * 1000; ?>;
-            
+
             // Auto-refresh functionality
             if (window.ModUnwetterwarnungAutoRefresh) {
                 window.ModUnwetterwarnungAutoRefresh.init(moduleId, refreshInterval);
             }
         });
     </script>
-<?php endif; ?> 
+<?php endif; ?>
