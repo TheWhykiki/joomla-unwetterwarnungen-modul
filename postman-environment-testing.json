@@ -1,0 +1,121 @@
+{
+	"id": "test-env-12345678-1234-1234-1234-123456789013",
+	"name": "Unwetterwarnung Testing",
+	"values": [
+		{
+			"key": "base_url",
+			"value": "https://api.openweathermap.org",
+			"type": "default",
+			"enabled": true,
+			"description": "OpenWeatherMap API Base URL"
+		},
+		{
+			"key": "api_version",
+			"value": "2.5",
+			"type": "default",
+			"enabled": true,
+			"description": "API Version (entspricht OpenWeatherAPIHelper::API_VERSION)"
+		},
+		{
+			"key": "api_key",
+			"value": "YOUR_TEST_API_KEY_HERE",
+			"type": "secret",
+			"enabled": true,
+			"description": "Testing OpenWeatherMap API Key - MUSS gesetzt werden!"
+		},
+		{
+			"key": "latitude",
+			"value": "52.520008",
+			"type": "default",
+			"enabled": true,
+			"description": "Testing Location - Berlin, Deutschland"
+		},
+		{
+			"key": "longitude",
+			"value": "13.404954",
+			"type": "default",
+			"enabled": true,
+			"description": "Testing Location - Berlin, Deutschland"
+		},
+		{
+			"key": "language",
+			"value": "en",
+			"type": "default",
+			"enabled": true,
+			"description": "Sprache für API-Antworten (Testing: Englisch für Konsistenz)"
+		},
+		{
+			"key": "location_name",
+			"value": "Berlin,DE",
+			"type": "default",
+			"enabled": true,
+			"description": "Ortsname für Geocoding-Tests (Testing)"
+		},
+		{
+			"key": "geocoding_limit",
+			"value": "3",
+			"type": "default",
+			"enabled": true,
+			"description": "Maximale Anzahl Geocoding-Ergebnisse (Testing: reduziert)"
+		},
+		{
+			"key": "bbox_coordinates",
+			"value": "12.5,52.0,14.5,53.0",
+			"type": "default",
+			"enabled": true,
+			"description": "Bounding Box für DWD Karten (Berlin/Brandenburg - Testing Bereich)"
+		},
+		{
+			"key": "environment",
+			"value": "testing",
+			"type": "default",
+			"enabled": true,
+			"description": "Aktuelle Umgebung"
+		},
+		{
+			"key": "debug_mode",
+			"value": "true",
+			"type": "default",
+			"enabled": true,
+			"description": "Debug-Modus für Test-Validierung"
+		},
+		{
+			"key": "request_timeout",
+			"value": "8000",
+			"type": "default",
+			"enabled": true,
+			"description": "Request Timeout in ms (Testing: etwas kürzer)"
+		},
+		{
+			"key": "cache_duration",
+			"value": "60",
+			"type": "default",
+			"enabled": true,
+			"description": "Cache-Dauer in Sekunden (Testing: sehr kurz)"
+		},
+		{
+			"key": "test_coordinates_alt_lat",
+			"value": "48.137154",
+			"type": "default",
+			"enabled": true,
+			"description": "Alternative Test-Koordinaten - München"
+		},
+		{
+			"key": "test_coordinates_alt_lon",
+			"value": "11.576124",
+			"type": "default",
+			"enabled": true,
+			"description": "Alternative Test-Koordinaten - München"
+		},
+		{
+			"key": "test_location_alt",
+			"value": "München,DE",
+			"type": "default",
+			"enabled": true,
+			"description": "Alternative Test-Location für Geocoding"
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2025-07-08T12:38:45.000Z",
+	"_postman_exported_using": "Postman/10.0.0"
+}

@@ -1,0 +1,100 @@
+{
+	"id": "dev-env-12345678-1234-1234-1234-123456789012",
+	"name": "Unwetterwarnung Development",
+	"values": [
+		{
+			"key": "base_url",
+			"value": "https://api.openweathermap.org",
+			"type": "default",
+			"enabled": true,
+			"description": "OpenWeatherMap API Base URL"
+		},
+		{
+			"key": "api_version",
+			"value": "2.5",
+			"type": "default",
+			"enabled": true,
+			"description": "API Version (entspricht OpenWeatherAPIHelper::API_VERSION)"
+		},
+		{
+			"key": "api_key",
+			"value": "YOUR_DEV_API_KEY_HERE",
+			"type": "secret",
+			"enabled": true,
+			"description": "Development OpenWeatherMap API Key - MUSS gesetzt werden!"
+		},
+		{
+			"key": "latitude",
+			"value": "50.264024",
+			"type": "default",
+			"enabled": true,
+			"description": "Development Test Location - Fulda, Deutschland (Modul Standard)"
+		},
+		{
+			"key": "longitude",
+			"value": "9.319105",
+			"type": "default",
+			"enabled": true,
+			"description": "Development Test Location - Fulda, Deutschland (Modul Standard)"
+		},
+		{
+			"key": "language",
+			"value": "de",
+			"type": "default",
+			"enabled": true,
+			"description": "Sprache für API-Antworten (Development: Deutsch)"
+		},
+		{
+			"key": "location_name",
+			"value": "Fulda,DE",
+			"type": "default",
+			"enabled": true,
+			"description": "Ortsname für Geocoding-Tests (Development)"
+		},
+		{
+			"key": "geocoding_limit",
+			"value": "5",
+			"type": "default",
+			"enabled": true,
+			"description": "Maximale Anzahl Geocoding-Ergebnisse (Development: Standard)"
+		},
+		{
+			"key": "bbox_coordinates",
+			"value": "8.5,49.5,10.5,51.5",
+			"type": "default",
+			"enabled": true,
+			"description": "Bounding Box für DWD Karten (Hessen/Thüringen - Development Bereich)"
+		},
+		{
+			"key": "environment",
+			"value": "development",
+			"type": "default",
+			"enabled": true,
+			"description": "Aktuelle Umgebung"
+		},
+		{
+			"key": "debug_mode",
+			"value": "true",
+			"type": "default",
+			"enabled": true,
+			"description": "Debug-Modus für ausführliche Logs"
+		},
+		{
+			"key": "request_timeout",
+			"value": "10000",
+			"type": "default",
+			"enabled": true,
+			"description": "Request Timeout in ms (entspricht Modul-Einstellung)"
+		},
+		{
+			"key": "cache_duration",
+			"value": "300",
+			"type": "default",
+			"enabled": true,
+			"description": "Cache-Dauer in Sekunden (Development: kurz für Tests)"
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2025-07-08T12:38:45.000Z",
+	"_postman_exported_using": "Postman/10.0.0"
+}

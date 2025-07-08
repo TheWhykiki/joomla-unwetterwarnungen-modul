@@ -1,0 +1,121 @@
+{
+	"id": "local-env-12345678-1234-1234-1234-123456789015",
+	"name": "Unwetterwarnung Local Development",
+	"values": [
+		{
+			"key": "base_url",
+			"value": "https://api.openweathermap.org",
+			"type": "default",
+			"enabled": true,
+			"description": "OpenWeatherMap API Base URL"
+		},
+		{
+			"key": "api_version",
+			"value": "2.5",
+			"type": "default",
+			"enabled": true,
+			"description": "API Version (entspricht OpenWeatherAPIHelper::API_VERSION)"
+		},
+		{
+			"key": "api_key",
+			"value": "YOUR_LOCAL_DEV_API_KEY_HERE",
+			"type": "secret",
+			"enabled": true,
+			"description": "Local Development OpenWeatherMap API Key"
+		},
+		{
+			"key": "latitude",
+			"value": "50.264024",
+			"type": "default",
+			"enabled": true,
+			"description": "Local Dev Location - Fulda, Deutschland (wie Joomla Modul)"
+		},
+		{
+			"key": "longitude",
+			"value": "9.319105",
+			"type": "default",
+			"enabled": true,
+			"description": "Local Dev Location - Fulda, Deutschland (wie Joomla Modul)"
+		},
+		{
+			"key": "language",
+			"value": "de",
+			"type": "default",
+			"enabled": true,
+			"description": "Sprache für API-Antworten (Local: Deutsch wie Modul)"
+		},
+		{
+			"key": "location_name",
+			"value": "Fulda,DE",
+			"type": "default",
+			"enabled": true,
+			"description": "Ortsname für Geocoding-Tests (Local Development)"
+		},
+		{
+			"key": "geocoding_limit",
+			"value": "10",
+			"type": "default",
+			"enabled": true,
+			"description": "Maximale Anzahl Geocoding-Ergebnisse (Local: mehr für Tests)"
+		},
+		{
+			"key": "bbox_coordinates",
+			"value": "8.5,49.5,10.5,51.5",
+			"type": "default",
+			"enabled": true,
+			"description": "Bounding Box für DWD Karten (Hessen/Thüringen - Local Bereich)"
+		},
+		{
+			"key": "environment",
+			"value": "local",
+			"type": "default",
+			"enabled": true,
+			"description": "Aktuelle Umgebung"
+		},
+		{
+			"key": "debug_mode",
+			"value": "true",
+			"type": "default",
+			"enabled": true,
+			"description": "Debug-Modus für lokale Entwicklung"
+		},
+		{
+			"key": "request_timeout",
+			"value": "15000",
+			"type": "default",
+			"enabled": true,
+			"description": "Request Timeout in ms (Local: länger für Debug)"
+		},
+		{
+			"key": "cache_duration",
+			"value": "30",
+			"type": "default",
+			"enabled": true,
+			"description": "Cache-Dauer in Sekunden (Local: sehr kurz für Tests)"
+		},
+		{
+			"key": "joomla_base_url",
+			"value": "http://localhost/joomla",
+			"type": "default",
+			"enabled": true,
+			"description": "Lokale Joomla Installation URL"
+		},
+		{
+			"key": "module_path",
+			"value": "/modules/mod_unwetterwarnung",
+			"type": "default",
+			"enabled": true,
+			"description": "Pfad zum Modul in lokaler Installation"
+		},
+		{
+			"key": "verbose_logging",
+			"value": "true",
+			"type": "default",
+			"enabled": true,
+			"description": "Ausführliche Logs für lokale Entwicklung"
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2025-07-08T12:38:45.000Z",
+	"_postman_exported_using": "Postman/10.0.0"
+}

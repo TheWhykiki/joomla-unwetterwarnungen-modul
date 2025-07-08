@@ -1,0 +1,114 @@
+{
+	"id": "prod-env-12345678-1234-1234-1234-123456789014",
+	"name": "Unwetterwarnung Production",
+	"values": [
+		{
+			"key": "base_url",
+			"value": "https://api.openweathermap.org",
+			"type": "default",
+			"enabled": true,
+			"description": "OpenWeatherMap API Base URL"
+		},
+		{
+			"key": "api_version",
+			"value": "2.5",
+			"type": "default",
+			"enabled": true,
+			"description": "API Version (entspricht OpenWeatherAPIHelper::API_VERSION)"
+		},
+		{
+			"key": "api_key",
+			"value": "YOUR_PRODUCTION_API_KEY_HERE",
+			"type": "secret",
+			"enabled": true,
+			"description": "PRODUCTION OpenWeatherMap API Key - SICHER AUFBEWAHREN!"
+		},
+		{
+			"key": "latitude",
+			"value": "50.264024",
+			"type": "default",
+			"enabled": true,
+			"description": "Production Location - Fulda, Deutschland (Modul Standard)"
+		},
+		{
+			"key": "longitude",
+			"value": "9.319105",
+			"type": "default",
+			"enabled": true,
+			"description": "Production Location - Fulda, Deutschland (Modul Standard)"
+		},
+		{
+			"key": "language",
+			"value": "de",
+			"type": "default",
+			"enabled": true,
+			"description": "Sprache für API-Antworten (Production: Deutsch)"
+		},
+		{
+			"key": "location_name",
+			"value": "Fulda,DE",
+			"type": "default",
+			"enabled": true,
+			"description": "Ortsname für Geocoding (Production Standard)"
+		},
+		{
+			"key": "geocoding_limit",
+			"value": "5",
+			"type": "default",
+			"enabled": true,
+			"description": "Maximale Anzahl Geocoding-Ergebnisse (Production Standard)"
+		},
+		{
+			"key": "bbox_coordinates",
+			"value": "8.5,49.5,10.5,51.5",
+			"type": "default",
+			"enabled": true,
+			"description": "Bounding Box für DWD Karten (Hessen/Thüringen - Production Bereich)"
+		},
+		{
+			"key": "environment",
+			"value": "production",
+			"type": "default",
+			"enabled": true,
+			"description": "Aktuelle Umgebung"
+		},
+		{
+			"key": "debug_mode",
+			"value": "false",
+			"type": "default",
+			"enabled": true,
+			"description": "Debug-Modus (Production: deaktiviert)"
+		},
+		{
+			"key": "request_timeout",
+			"value": "10000",
+			"type": "default",
+			"enabled": true,
+			"description": "Request Timeout in ms (entspricht Modul-Einstellung)"
+		},
+		{
+			"key": "cache_duration",
+			"value": "900",
+			"type": "default",
+			"enabled": true,
+			"description": "Cache-Dauer in Sekunden (Production: 15 Minuten)"
+		},
+		{
+			"key": "rate_limit_buffer",
+			"value": "100",
+			"type": "default",
+			"enabled": true,
+			"description": "Rate Limit Puffer in ms zwischen Requests"
+		},
+		{
+			"key": "monitoring_enabled",
+			"value": "true",
+			"type": "default",
+			"enabled": true,
+			"description": "Monitoring für Production aktiviert"
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2025-07-08T12:38:45.000Z",
+	"_postman_exported_using": "Postman/10.0.0"
+}

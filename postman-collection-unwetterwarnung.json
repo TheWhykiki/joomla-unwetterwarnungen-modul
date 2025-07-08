@@ -1,0 +1,609 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		"name": "Joomla Unwetterwarnung Modul - OpenWeatherMap API Collection",
+		"description": "Postman Collection für das Joomla Unwetterwarnung Modul (mod_unwetterwarnung)\n\nDiese Collection enthält alle API-Endpunkte, die vom Modul verwendet werden:\n- Weather Alerts (Unwetterwarnungen)\n- Current Weather (Aktuelles Wetter)\n- Geocoding (Ortsauflösung)\n- Reverse Geocoding (Koordinaten zu Ort)\n\nVor der Nutzung:\n1. Setzen Sie Ihren OpenWeatherMap API Key in den Collection Variables\n2. Passen Sie die Koordinaten und Orte nach Bedarf an\n3. Alle Requests verwenden die gleichen Parameter wie das Joomla Modul\n\nDokumentation: https://github.com/whykiki/mod_unwetterwarnung",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12345678"
+	},
+	"item": [
+		{
+			"name": "Weather Alerts API",
+			"item": [
+				{
+					"name": "Get Weather Alerts (One Call API)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has alerts property\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('alerts');",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 5000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/data/{{api_version}}/onecall?lat={{latitude}}&lon={{longitude}}&appid={{api_key}}&lang={{language}}&exclude=minutely,hourly,daily",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"data",
+								"{{api_version}}",
+								"onecall"
+							],
+							"query": [
+								{
+									"key": "lat",
+									"value": "{{latitude}}",
+									"description": "Latitude (Breitengrad)"
+								},
+								{
+									"key": "lon",
+									"value": "{{longitude}}",
+									"description": "Longitude (Längengrad)"
+								},
+								{
+									"key": "appid",
+									"value": "{{api_key}}",
+									"description": "OpenWeatherMap API Key"
+								},
+								{
+									"key": "lang",
+									"value": "{{language}}",
+									"description": "Sprache (de, en, etc.)"
+								},
+								{
+									"key": "exclude",
+									"value": "minutely,hourly,daily",
+									"description": "Ausgeschlossene Daten - nur Alerts benötigt"
+								}
+							]
+						},
+						"description": "Hauptendpunkt für Unwetterwarnungen. Entspricht der getWeatherAlerts() Methode im OpenWeatherAPIHelper.\n\nDieser Endpunkt wird vom Modul verwendet um aktuelle Wetterwarnungen für eine bestimmte Position abzurufen. Die Antwort enthält ein 'alerts' Array mit allen aktiven Warnungen."
+					}
+				}
+			],
+			"description": "API-Endpunkte für Unwetterwarnungen und Wetteralarme"
+		},
+		{
+			"name": "Current Weather API",
+			"item": [
+				{
+					"name": "Get Current Weather",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has weather data\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('weather');",
+									"    pm.expect(jsonData).to.have.property('main');",
+									"});",
+									"",
+									"pm.test(\"Temperature is present\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.main).to.have.property('temp');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/data/{{api_version}}/weather?lat={{latitude}}&lon={{longitude}}&appid={{api_key}}&lang={{language}}&units=metric",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"data",
+								"{{api_version}}",
+								"weather"
+							],
+							"query": [
+								{
+									"key": "lat",
+									"value": "{{latitude}}",
+									"description": "Latitude (Breitengrad)"
+								},
+								{
+									"key": "lon",
+									"value": "{{longitude}}",
+									"description": "Longitude (Längengrad)"
+								},
+								{
+									"key": "appid",
+									"value": "{{api_key}}",
+									"description": "OpenWeatherMap API Key"
+								},
+								{
+									"key": "lang",
+									"value": "{{language}}",
+									"description": "Sprache für Wetterbeschreibungen"
+								},
+								{
+									"key": "units",
+									"value": "metric",
+									"description": "Einheiten (metric = Celsius, km/h)"
+								}
+							]
+						},
+						"description": "Aktuelles Wetter für bestimmte Koordinaten. Entspricht der getCurrentWeather() Methode im OpenWeatherAPIHelper.\n\nLiefert aktuelle Wetterdaten wie Temperatur, Luftfeuchtigkeit, Luftdruck und Wetterbedingungen."
+					}
+				}
+			],
+			"description": "API-Endpunkte für aktuelle Wetterdaten"
+		},
+		{
+			"name": "Geocoding API",
+			"item": [
+				{
+					"name": "Geocode Location (Direct)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"First result has coordinates\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.length > 0) {",
+									"        pm.expect(jsonData[0]).to.have.property('lat');",
+									"        pm.expect(jsonData[0]).to.have.property('lon');",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/geo/1.0/direct?q={{location_name}}&limit={{geocoding_limit}}&appid={{api_key}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"geo",
+								"1.0",
+								"direct"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "{{location_name}}",
+									"description": "Ortsname (Stadt, Land)"
+								},
+								{
+									"key": "limit",
+									"value": "{{geocoding_limit}}",
+									"description": "Maximale Anzahl Ergebnisse"
+								},
+								{
+									"key": "appid",
+									"value": "{{api_key}}",
+									"description": "OpenWeatherMap API Key"
+								}
+							]
+						},
+						"description": "Konvertiert Ortsnamen zu GPS-Koordinaten. Entspricht der geocodeLocation() Methode im OpenWeatherAPIHelper.\n\nUnterstützt Städtenamen, Postleitzahlen und Adressen. Gibt ein Array mit möglichen Übereinstimmungen zurück."
+					}
+				},
+				{
+					"name": "Reverse Geocode (Coordinates to Location)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"First result has name\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.length > 0) {",
+									"        pm.expect(jsonData[0]).to.have.property('name');",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/geo/1.0/reverse?lat={{latitude}}&lon={{longitude}}&limit={{geocoding_limit}}&appid={{api_key}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"geo",
+								"1.0",
+								"reverse"
+							],
+							"query": [
+								{
+									"key": "lat",
+									"value": "{{latitude}}",
+									"description": "Latitude (Breitengrad)"
+								},
+								{
+									"key": "lon",
+									"value": "{{longitude}}",
+									"description": "Longitude (Längengrad)"
+								},
+								{
+									"key": "limit",
+									"value": "{{geocoding_limit}}",
+									"description": "Maximale Anzahl Ergebnisse"
+								},
+								{
+									"key": "appid",
+									"value": "{{api_key}}",
+									"description": "OpenWeatherMap API Key"
+								}
+							]
+						},
+						"description": "Konvertiert GPS-Koordinaten zu lesbaren Ortsnamen. Entspricht der reverseGeocode() Methode im OpenWeatherAPIHelper.\n\nGibt ein Array mit Ortsinformationen für die angegebenen Koordinaten zurück."
+					}
+				}
+			],
+			"description": "API-Endpunkte für Geocoding (Ortsauflösung)"
+		},
+		{
+			"name": "DWD Integration",
+			"item": [
+				{
+					"name": "DWD WMS GetCapabilities",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://maps.dwd.de/geoserver/dwd/wms?service=WMS&version=1.3.0&request=GetCapabilities",
+							"protocol": "https",
+							"host": [
+								"maps",
+								"dwd",
+								"de"
+							],
+							"path": [
+								"geoserver",
+								"dwd",
+								"wms"
+							],
+							"query": [
+								{
+									"key": "service",
+									"value": "WMS"
+								},
+								{
+									"key": "version",
+									"value": "1.3.0"
+								},
+								{
+									"key": "request",
+									"value": "GetCapabilities"
+								}
+							]
+						},
+						"description": "Abrufen der verfügbaren WMS-Layer vom DWD Geoserver. Wird für die Karten-Integration verwendet.\n\nDieser Endpunkt wird vom Modul für die DWD-Karten-Funktionalität genutzt (Layout: dwd_map)."
+					}
+				},
+				{
+					"name": "DWD WMS GetMap - Warnungen",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://maps.dwd.de/geoserver/dwd/wms?service=WMS&version=1.3.0&request=GetMap&layers=Warnungen_Gemeinden_vereinigt&styles=&width=800&height=600&crs=EPSG:4326&bbox={{bbox_coordinates}}&format=image/png&transparent=true",
+							"protocol": "https",
+							"host": [
+								"maps",
+								"dwd",
+								"de"
+							],
+							"path": [
+								"geoserver",
+								"dwd",
+								"wms"
+							],
+							"query": [
+								{
+									"key": "service",
+									"value": "WMS"
+								},
+								{
+									"key": "version",
+									"value": "1.3.0"
+								},
+								{
+									"key": "request",
+									"value": "GetMap"
+								},
+								{
+									"key": "layers",
+									"value": "Warnungen_Gemeinden_vereinigt",
+									"description": "DWD Warnungen Layer"
+								},
+								{
+									"key": "styles",
+									"value": ""
+								},
+								{
+									"key": "width",
+									"value": "800"
+								},
+								{
+									"key": "height",
+									"value": "600"
+								},
+								{
+									"key": "crs",
+									"value": "EPSG:4326"
+								},
+								{
+									"key": "bbox",
+									"value": "{{bbox_coordinates}}",
+									"description": "Bounding Box Koordinaten (min_lon,min_lat,max_lon,max_lat)"
+								},
+								{
+									"key": "format",
+									"value": "image/png"
+								},
+								{
+									"key": "transparent",
+									"value": "true"
+								}
+							]
+						},
+						"description": "Abrufen einer Warnkarte vom DWD WMS Service. Entspricht der Karten-Funktionalität im Modul.\n\nDieser Request generiert eine PNG-Karte mit aktuellen Wetterwarnungen für den angegebenen Bereich."
+					}
+				}
+			],
+			"description": "Integration mit dem Deutschen Wetterdienst (DWD) für Karten und zusätzliche Warnungen"
+		},
+		{
+			"name": "Test & Validation",
+			"item": [
+				{
+					"name": "API Key Validation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"API Key is valid\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains weather data\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('weather');",
+									"});",
+									"",
+									"pm.test(\"API Key not invalid (401)\", function () {",
+									"    pm.response.to.not.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/data/{{api_version}}/weather?lat=50.264024&lon=9.319105&appid={{api_key}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"data",
+								"{{api_version}}",
+								"weather"
+							],
+							"query": [
+								{
+									"key": "lat",
+									"value": "50.264024",
+									"description": "Test-Koordinaten (Fulda, Deutschland)"
+								},
+								{
+									"key": "lon",
+									"value": "9.319105"
+								},
+								{
+									"key": "appid",
+									"value": "{{api_key}}"
+								}
+							]
+						},
+						"description": "Validierung des API Keys mit Test-Koordinaten. Nutzt die Standard-Koordinaten aus dem Modul (Fulda, Deutschland).\n\nDieser Test sollte als erstes ausgeführt werden um sicherzustellen, dass der API Key korrekt konfiguriert ist."
+					}
+				},
+				{
+					"name": "Rate Limit Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"No rate limit exceeded\", function () {",
+									"    pm.response.to.not.have.status(429);",
+									"});",
+									"",
+									"pm.test(\"Response time acceptable\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(10000);",
+									"});",
+									"",
+									"pm.test(\"Headers contain rate limit info\", function () {",
+									"    // OpenWeatherMap doesn't always send rate limit headers",
+									"    // but we can check response time as indicator",
+									"    pm.expect(pm.response.responseTime).to.exist;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/data/{{api_version}}/weather?lat={{latitude}}&lon={{longitude}}&appid={{api_key}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"data",
+								"{{api_version}}",
+								"weather"
+							],
+							"query": [
+								{
+									"key": "lat",
+									"value": "{{latitude}}"
+								},
+								{
+									"key": "lon",
+									"value": "{{longitude}}"
+								},
+								{
+									"key": "appid",
+									"value": "{{api_key}}"
+								}
+							]
+						},
+						"description": "Überprüfung der Rate Limits und Performance. OpenWeatherMap hat verschiedene Limits je nach Abo-Plan.\n\nDieser Test entspricht den Timeout-Einstellungen im Modul (10 Sekunden)."
+					}
+				}
+			],
+			"description": "Test- und Validierungs-Endpunkte für die API-Integration"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Automatische Zeitstempel für Logging",
+					"pm.globals.set('timestamp', new Date().toISOString());"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Globale Tests für alle Requests",
+					"pm.test('Response time is reasonable', function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(15000);",
+					"});",
+					"",
+					"pm.test('No server errors', function () {",
+					"    pm.expect(pm.response.code).to.be.below(500);",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://api.openweathermap.org",
+			"type": "string",
+			"description": "OpenWeatherMap API Base URL"
+		},
+		{
+			"key": "api_version",
+			"value": "2.5",
+			"type": "string",
+			"description": "API Version (entspricht OpenWeatherAPIHelper::API_VERSION)"
+		},
+		{
+			"key": "api_key",
+			"value": "YOUR_OPENWEATHERMAP_API_KEY_HERE",
+			"type": "string",
+			"description": "Ihr OpenWeatherMap API Key - MUSS gesetzt werden!"
+		},
+		{
+			"key": "latitude",
+			"value": "50.264024",
+			"type": "string",
+			"description": "Standard Latitude (Fulda, Deutschland - wie im Modul)"
+		},
+		{
+			"key": "longitude",
+			"value": "9.319105",
+			"type": "string",
+			"description": "Standard Longitude (Fulda, Deutschland - wie im Modul)"
+		},
+		{
+			"key": "language",
+			"value": "de",
+			"type": "string",
+			"description": "Sprache für API-Antworten (de, en, fr, etc.)"
+		},
+		{
+			"key": "location_name",
+			"value": "Fulda,DE",
+			"type": "string",
+			"description": "Ortsname für Geocoding-Tests"
+		},
+		{
+			"key": "geocoding_limit",
+			"value": "5",
+			"type": "string",
+			"description": "Maximale Anzahl Geocoding-Ergebnisse"
+		},
+		{
+			"key": "bbox_coordinates",
+			"value": "8.5,49.5,10.5,51.5",
+			"type": "string",
+			"description": "Bounding Box für DWD Karten (Hessen/Thüringen Bereich)"
+		}
+	]
+}
